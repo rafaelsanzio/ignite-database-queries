@@ -14,7 +14,9 @@ export class UsersRepository implements IUsersRepository {
   async findUserWithGamesById({
     user_id,
   }: IFindUserWithGamesDTO): Promise<User> {
-    const user = await this.repository.findOne(user_id);
+    const user = await this.repository.findOne(user_id, {
+      relations: ["games"],
+    });
 
     if (!user) {
       throw new Error("User does not exists!");
@@ -25,7 +27,7 @@ export class UsersRepository implements IUsersRepository {
 
   async findAllUsersOrderedByFirstName(): Promise<User[]> {
     return this.repository.query(
-      `SELECT id, first_name, last_name, email 
+      `SELECT id, first_name, last_name, email, created_at, updated_at 
       FROM users 
       ORDER BY first_name`
     );
@@ -36,7 +38,7 @@ export class UsersRepository implements IUsersRepository {
     last_name,
   }: IFindUserByFullNameDTO): Promise<User[] | undefined> {
     return this.repository.query(
-      `SELECT id, first_name, last_name, email
+      `SELECT id, first_name, last_name, email, created_at, updated_at
       FROM users
       WHERE first_name ILIKE $1
       AND last_name ILIKE $2`,
